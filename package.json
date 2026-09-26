@@ -1,17 +1,28 @@
 {
-  "name": "beatober-scaffold",
+  "name": "beatober-mechant-chaton",
   "version": "1.0.0",
-  "description": "My Remotion video",
+  "description": "Beatober 2026 Instagram Reels builder for Mechant Chaton — Remotion + procedural 3D + beat sync",
   "repository": {},
   "license": "UNLICENSED",
   "private": true,
+  "type": "module",
   "dependencies": {
+    "@react-three/fiber": "^9.4.2",
     "@remotion/cli": "4.0.529",
+    "@remotion/google-fonts": "4.0.529",
+    "@remotion/media-utils": "4.0.529",
+    "@remotion/tailwind-v4": "4.0.529",
+    "@remotion/three": "4.0.529",
+    "@remotion/zod-types": "4.0.529",
+    "@types/three": "^0.180.0",
+    "audio-decode": "^2.2.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.529",
-    "@remotion/tailwind-v4": "4.0.529",
-    "tailwindcss": "4.0.0"
+    "tailwindcss": "4.0.0",
+    "three": "^0.180.0",
+    "web-audio-beat-detector": "^8.2.0",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "4.0.529",
@@ -22,10 +33,13 @@
     "typescript": "5.9.3"
   },
   "scripts": {
-    "dev": "remotion studio",
+    "studio": "remotion studio --port 4466",
+    "dev": "npm run studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "prepare:day": "node scripts/analyze-beatmap.mjs --day",
+    "render:day": "node scripts/render-day.mjs"
   },
   "sideEffects": [
     "*.css"

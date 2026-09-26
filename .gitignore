@@ -5,3 +5,10 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+public/audio/*.mp3
+public/audio/*.wav
+public/audio/*.m4a
+!public/audio/.gitkeep
+!public/audio/silence.wav
+public/beatmaps/*.json
+!public/beatmaps/.gitkeep
