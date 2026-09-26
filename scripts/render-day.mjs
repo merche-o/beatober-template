@@ -6,6 +6,8 @@
  *        npm run render:day -- 1 --offset 12.5
  */
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -41,18 +43,16 @@ const props = {
     : {}),
 };
 
-const out = path.join(root, "out", `day-${pad}.mp4`);
+const outDir = path.join(root, "out");
+fs.mkdirSync(outDir, { recursive: true });
+const out = path.join(outDir, `day-${pad}.mp4`);
+const propsFile = path.join(os.tmpdir(), `beatober-day-${pad}-props.json`);
+fs.writeFileSync(propsFile, JSON.stringify(props));
+
 const result = spawnSync(
   "npx",
-  [
-    "remotion",
-    "render",
-    "BeatoberReel",
-    out,
-    `--props=${JSON.stringify(props)}`,
-    "--gl=angle",
-  ],
-  { cwd: root, stdio: "inherit", shell: true },
+  ["remotion", "render", "BeatoberReel", out, `--props=${propsFile}`, "--gl=angle"],
+  { cwd: root, stdio: "inherit" },
 );
 
 process.exit(result.status ?? 1);

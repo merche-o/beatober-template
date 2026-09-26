@@ -4,6 +4,7 @@ import {
   Audio,
   continueRender,
   delayRender,
+  Series,
   staticFile,
   useVideoConfig,
 } from "remotion";
@@ -11,12 +12,19 @@ import type { BeatoberProps } from "./schema";
 import { getDay, padDay } from "./data/prompts";
 import { ProceduralScene } from "./scenes/ProceduralScene";
 import { DayTitle } from "./components/DayTitle";
+import { IntroCard } from "./components/IntroCard";
+import { OutroCard } from "./components/OutroCard";
 import { useBeatState } from "./audio/useBeatState";
 import {
   resolveAudioOffsetSec,
   type Beatmap,
 } from "./audio/beatmap";
-import { colors } from "./theme";
+import {
+  colors,
+  INTRO_FRAMES,
+  MAIN_FRAMES,
+  OUTRO_FRAMES,
+} from "./theme";
 
 const loadBeatmap = async (path: string): Promise<Beatmap | null> => {
   try {
@@ -37,18 +45,23 @@ const probeAudio = async (path: string): Promise<boolean> => {
   }
 };
 
-export const BeatoberReel: React.FC<BeatoberProps> = ({
+const MainReel: React.FC<{
+  day: number;
+  audioPath: string;
+  beatmapPath: string;
+  startOffsetSec?: number;
+  autoHighlight?: boolean;
+  renderer: BeatoberProps["renderer"];
+}> = ({
   day,
-  audioFile,
-  beatmapFile,
+  audioPath,
+  beatmapPath,
   startOffsetSec,
   autoHighlight = false,
   renderer = "auto",
 }) => {
   const entry = getDay(day);
   const { fps } = useVideoConfig();
-  const audioPath = audioFile ?? `audio/day-${padDay(day)}.mp3`;
-  const beatmapPath = beatmapFile ?? `beatmaps/day-${padDay(day)}.json`;
 
   const [handle] = useState(() =>
     delayRender(`Load assets for day ${day}`),
@@ -113,6 +126,43 @@ export const BeatoberReel: React.FC<BeatoberProps> = ({
           startFrom={Math.round(audioOffsetSec * fps)}
         />
       ) : null}
+    </AbsoluteFill>
+  );
+};
+
+export const BeatoberReel: React.FC<BeatoberProps> = ({
+  day,
+  audioFile,
+  beatmapFile,
+  startOffsetSec,
+  autoHighlight = false,
+  renderer = "auto",
+}) => {
+  const entry = getDay(day);
+  const audioPath = audioFile ?? `audio/day-${padDay(day)}.mp3`;
+  const beatmapPath = beatmapFile ?? `beatmaps/day-${padDay(day)}.json`;
+  const accentBias = entry.artDirection.accentBias;
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: colors.black }}>
+      <Series>
+        <Series.Sequence durationInFrames={INTRO_FRAMES}>
+          <IntroCard accentBias={accentBias} />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={MAIN_FRAMES}>
+          <MainReel
+            day={day}
+            audioPath={audioPath}
+            beatmapPath={beatmapPath}
+            startOffsetSec={startOffsetSec}
+            autoHighlight={autoHighlight}
+            renderer={renderer}
+          />
+        </Series.Sequence>
+        <Series.Sequence durationInFrames={OUTRO_FRAMES}>
+          <OutroCard accentBias={accentBias} />
+        </Series.Sequence>
+      </Series>
     </AbsoluteFill>
   );
 };

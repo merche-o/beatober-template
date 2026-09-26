@@ -11,6 +11,8 @@ import { loadFont as loadSpaceGrotesk } from "@remotion/google-fonts/SpaceGrotes
 import { colors, accentFor, type AccentBias } from "../theme";
 import type { BeatState } from "../audio/beatmap";
 import { padDay } from "../data/prompts";
+import { ChatonMark } from "./ChatonMark";
+import { BrandWordmark } from "./BrandWordmark";
 
 const { fontFamily: syne } = loadSyne();
 const { fontFamily: space } = loadSpaceGrotesk();
@@ -36,8 +38,49 @@ export const DayTitle: React.FC<{
   const y = interpolate(enter, [0, 1], [36, 0]);
   const scale = 1 + beat.accent * 0.045 + beat.bass * 0.02;
 
+  const brandEnter = spring({
+    frame,
+    fps,
+    config: { damping: 16, stiffness: 70 },
+  });
+  const brandOpacity = interpolate(frame, [0, 16], [0, 1], {
+    extrapolateRight: "clamp",
+  });
+  const brandY = interpolate(brandEnter, [0, 1], [-28, 0]);
+  const brandPulse = 1 + beat.bass * 0.04 + beat.accent * 0.06;
+  const nameGlow = beat.accent * 0.55 + beat.bass * 0.25;
+  const glowRgb =
+    accentBias === "purple"
+      ? "123, 77, 255"
+      : accentBias === "gold"
+        ? "212, 168, 75"
+        : "47, 212, 168";
+
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 56,
+          left: 64,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 20,
+          opacity: brandOpacity,
+          transform: `translateY(${brandY}px) scale(${brandPulse})`,
+          transformOrigin: "left center",
+          filter: `drop-shadow(0 0 ${10 + nameGlow * 20}px rgba(${glowRgb}, ${0.2 + nameGlow * 0.4}))`,
+        }}
+      >
+        <ChatonMark size={76} accentBias={accentBias} />
+        <BrandWordmark
+          accentBias={accentBias}
+          fontSize={34}
+          letterSpacing="0.12em"
+        />
+      </div>
+
       <div
         style={{
           position: "absolute",
@@ -53,14 +96,15 @@ export const DayTitle: React.FC<{
           style={{
             fontFamily: syne,
             fontWeight: 800,
-            fontSize: 92,
-            letterSpacing: "-0.04em",
+            fontSize: 52,
+            letterSpacing: "-0.02em",
             color: colors.cream,
             lineHeight: 1,
+            whiteSpace: "nowrap",
             textShadow: `0 0 40px ${accent}55`,
           }}
         >
-          DAY {padDay(day)}
+          #BEATOBER : DAY {padDay(day)}
         </div>
         <div
           style={{
@@ -86,38 +130,6 @@ export const DayTitle: React.FC<{
             transformOrigin: "left center",
           }}
         />
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          top: 72,
-          left: 64,
-          fontFamily: space,
-          fontWeight: 600,
-          fontSize: 22,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: colors.cream,
-          opacity: 0.55,
-        }}
-      >
-        Mechant Chaton
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          top: 72,
-          right: 64,
-          fontFamily: space,
-          fontWeight: 500,
-          fontSize: 18,
-          letterSpacing: "0.22em",
-          textTransform: "uppercase",
-          color: colors.jadeBright,
-          opacity: 0.5,
-        }}
-      >
-        Beatober
       </div>
     </AbsoluteFill>
   );
